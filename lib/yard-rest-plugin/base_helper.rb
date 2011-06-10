@@ -10,7 +10,7 @@ module YARD::Templates::Helpers
         list.reject! { |item| options[:verifier].call(item).is_a?(FalseClass) }
       end
 
-      index_objects(list)
+      documented_objects(list)
     end
 
     def index_objects(list)
@@ -20,6 +20,16 @@ module YARD::Templates::Helpers
       res = reject_overall(res)
 
       res
+    end
+
+    def documented_objects(list)
+        res = reject_module(list)
+        res = list.reject do |object|
+          (object.type == :method && object.tags("url").empty?) ||
+          (object.type == :class && !object.has_tag?("overall") &&
+          (object.tags("topic").empty? || object.tags("url").empty?))
+        end
+        res
     end
 
     def reject_module(list)
